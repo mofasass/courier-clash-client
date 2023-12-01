@@ -2,7 +2,6 @@ import React, { createContext, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { BOARD_X } from "../board/config";
 import { parseWsMessage, sendOnWs } from "./websocket-utils";
-import { io } from "socket.io-client";
 
 export type Player = {
   id: string;
@@ -32,10 +31,10 @@ export const GameContext = createContext<GameContextType>({ players: [] });
 
 //@ts-ignore
 export const GameProvider = ({ children }) => {
-  const ws = io("ws://courier-clash-hub.azurewebsites.net/ws");
+  const ws = new WebSocket("ws://courier-clash-hub.azurewebsites.net/ws");
 
-  ws.onAny((event, ...data) => {
-    const wsData = parseWsMessage({ eventType: event, data });
+  ws.addEventListener("gameStatus", (data) => {
+    const wsData = parseWsMessage({ eventType: "gameStatus", data });
 
     switch (wsData.eventType) {
       case "gameStatus":
@@ -94,14 +93,16 @@ export const GameProvider = ({ children }) => {
       color,
     };
 
-    ws.emit("createPlayer", playerObject);
+    ws.send(JSON.stringify({ eventType: "createPlayer", playerObject }));
   };
 
   const updateMovement = (direction: "up" | "down" | "left" | "right") => {
     const playerId = currentPlayer?.id;
     if (playerId) {
       console.log("sending movement to server");
-      ws.emit("updateMovement", { playerId, direction });
+      ws.send(
+        JSON.stringify({ eventType: "createPlayer", playerId, direction })
+      );
     } else {
       console.log("no player id, won't send movement to server");
     }
