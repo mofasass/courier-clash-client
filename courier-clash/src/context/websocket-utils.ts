@@ -8,6 +8,7 @@ type playerJoined = {
 type GameStatus = {
   eventType: "gameStatus";
   gameTime: number;
+  players: Player[];
 };
 
 type wsPayloads = playerJoined | GameStatus;

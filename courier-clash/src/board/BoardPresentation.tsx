@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useEffect, useContext, useCallback } from "react";
 import styled from "styled-components";
 import { GameContext } from "../context/game-context";
 
@@ -10,11 +10,30 @@ const BoardDiv = styled.h1`
 `;
 
 const Board = () => {
-  const { gameTime } = useContext(GameContext);
+  const { gameTime, updateMovement } = useContext(GameContext);
+
+  const setUpListener = useCallback((e: any) => {
+    if (
+      ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].indexOf(e.code) > -1
+    ) {
+      e.preventDefault();
+      console.log(e);
+      updateMovement(e.code.replace("Arrow", "").toLowerCase());
+    }
+  }, []);
+
+  // Set up arrow key listener
+  useEffect(() => {
+    window.addEventListener("keydown", setUpListener);
+
+    return () => {
+      window.removeEventListener("keydown", setUpListener);
+    };
+  }, []);
 
   return (
     <>
-      <h2>Time left: {gameTime}</h2>
+      <h2>Ticks left: {gameTime}</h2>
       <BoardDiv></BoardDiv>
     </>
   );

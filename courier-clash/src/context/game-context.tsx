@@ -2,6 +2,7 @@ import React, { createContext } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { BOARD_X } from "../board/config";
 import { parseWsMessage, sendOnWs } from "./websocket-utils";
+import { io } from "socket.io-client";
 
 export type Player = {
   id: string;
@@ -22,52 +23,52 @@ type GameContextType = {
   players: Player[];
   gameTime: number;
   createPlayer: (name: string) => void;
+  updateMovement: (direction: "up" | "down" | "left" | "right") => void;
 };
 //@ts-ignore
 export const GameContext = createContext<GameContextType>({ players: [] });
 
 //@ts-ignore
 export const GameProvider = ({ children }) => {
-  const ws = new WebSocket("ws://courier-clash-hub.azurewebsites.net/clashHub");
+  const ws = io("ws://courier-clash-hub.azurewebsites.net/clashHub");
 
-  ws.addEventListener("message", function message(data) {
-    const wsData = parseWsMessage(data);
+  ws.onAny((event, ...data) => {
+    const wsData = parseWsMessage({ eventType: event, data });
 
     switch (wsData.eventType) {
       case "gameStatus":
         setGameTime(wsData.gameTime);
+        setPlayers(wsData.players);
         break;
     }
   });
 
+  const [currentPlayer, setCurrentPlayer] = React.useState<Player | undefined>(
+    undefined
+  );
   const [players, setPlayers] = React.useState<Player[]>([]);
   const [gameTime, setGameTime] = React.useState<number>(0);
 
   const createPlayer = (name: string) => {
     const color = `#${Math.floor(Math.random() * 16777215).toString(16)}`;
 
-    const playerObject: Player = {
+    const playerObject: Partial<Player> = {
       id: uuidv4(),
       name,
       color,
-      score: 0,
-      gameData: {
-        position: {
-          x: Math.floor(Math.random() * BOARD_X) + 1,
-          y: 0,
-        },
-        direction: "down",
-        hasPackage: false,
-      },
     };
 
-    setPlayers([...players, playerObject]);
+    ws.emit("createPlayer", playerObject);
+  };
 
-    sendOnWs(ws, { eventType: "playerJoined", player: playerObject });
+  const updateMovement = (direction: "up" | "down" | "left" | "right") => {
+    ws.emit("updateMovement", { playerId, direction });
   };
 
   return (
-    <GameContext.Provider value={{ players, createPlayer, gameTime }}>
+    <GameContext.Provider
+      value={{ players, createPlayer, gameTime, updateMovement }}
+    >
       {children}
     </GameContext.Provider>
   );
