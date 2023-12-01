@@ -30,7 +30,7 @@ export const GameContext = createContext<GameContextType>({ players: [] });
 
 //@ts-ignore
 export const GameProvider = ({ children }) => {
-  const ws = io("ws://courier-clash-hub.azurewebsites.net/clashHub");
+  const ws = io("ws://courier-clash-hub.azurewebsites.net/ws");
 
   ws.onAny((event, ...data) => {
     const wsData = parseWsMessage({ eventType: event, data });
@@ -62,7 +62,13 @@ export const GameProvider = ({ children }) => {
   };
 
   const updateMovement = (direction: "up" | "down" | "left" | "right") => {
-    ws.emit("updateMovement", { playerId, direction });
+    const playerId = currentPlayer?.id;
+    if (playerId) {
+      console.log("sending movement to server");
+      ws.emit("updateMovement", { playerId, direction });
+    } else {
+      console.log("no player id, won't send movement to server");
+    }
   };
 
   return (

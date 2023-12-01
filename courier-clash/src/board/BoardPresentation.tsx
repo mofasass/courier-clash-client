@@ -17,7 +17,6 @@ const Board = () => {
       ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].indexOf(e.code) > -1
     ) {
       e.preventDefault();
-      console.log(e);
       updateMovement(e.code.replace("Arrow", "").toLowerCase());
     }
   }, []);
