@@ -1,8 +1,8 @@
-import React from 'react';
-import styled from 'styled-components';
+import React, { useContext } from "react";
+import styled from "styled-components";
+import { GameContext } from "../context/game-context";
 
 const BoardDiv = styled.h1`
-
   height: 1000px;
   width: 1000px;
   background: #aaa;
@@ -10,7 +10,14 @@ const BoardDiv = styled.h1`
 `;
 
 const Board = () => {
-  return <BoardDiv></BoardDiv>
+  const { gameTime } = useContext(GameContext);
+
+  return (
+    <>
+      <h2>Time left: {gameTime}</h2>
+      <BoardDiv></BoardDiv>
+    </>
+  );
 };
 
 export default Board;
