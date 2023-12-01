@@ -10,6 +10,7 @@ type GameStatus = {
   gameTime: number;
   players: Player[];
   currentPackage: { x: number; y: number };
+  dropZone: { x: number; y: number };
 };
 
 type wsPayloads = playerJoined | GameStatus;

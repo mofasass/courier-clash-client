@@ -2,24 +2,24 @@ import React, { useEffect, useContext, useCallback, useState } from "react";
 import styled from "styled-components";
 import { GameContext } from "../context/game-context";
 import Player from "../player/PlayerPresentation";
+import Gray from "../pic/Gray.png";
+import Box from "../pic/box.png";
 
 const BoardDiv = styled.div`
   height: 1000px;
   width: 1000px;
-  background: #aaa;
+  background: url(${Gray});
   border: 1px solid #000;
-  position: absolute;
+  position: relative;
 `;
 
 const PackageDiv = styled.div<{ x: number; y: number }>`
-  height: 10px;
-  width: 10px;
-  background: #000;
-  border: 1px solid #000;
-  position: relative;
-  border-radius: 50%;
+  height: 20px;
+  width: 20px;
+  background: url(${Box}) no-repeat;
+  background-size: contain;
 
-  transform: translate(-50%, -50%);
+  position: absolute;
   left: ${({ x }) => x}px;
   top: ${({ y }) => y}px;
 `;
@@ -27,11 +27,8 @@ const PackageDiv = styled.div<{ x: number; y: number }>`
 const DropZoneDiv = styled.div<{ x: number; y: number }>`
   height: 100px;
   width: 100px;
-  background: #000;
-  border: 1px solid #000;
-  position: relative;
-
-  transform: translate(-50%, -50%);
+  border: 2px dashed #000;
+  position: absolute;
   left: ${({ x }) => x}px;
   top: ${({ y }) => y}px;
 `;
@@ -74,10 +71,13 @@ const Board = () => {
             color={p.color}
             x={p.gameData.position.x}
             y={p.gameData.position.y}
+            direction={p.gameData.direction}
+            hasPackage={p.gameData.hasPackage}
+            name={p.name}
           />
         ))}
-        <PackageDiv x={currentPackage.x * 10} y={currentPackage.y * 10} />
-        <DropZoneDiv x={dropZone.x * 10} y={dropZone.y * 10} />
+        <PackageDiv x={currentPackage.x * 5} y={currentPackage.y * 5} />
+        <DropZoneDiv x={dropZone.x * 5} y={dropZone.y * 5} />
       </BoardDiv>
       <input onChange={(e) => setUsername(e.target.value)} />
       <button

@@ -32,7 +32,7 @@ export const GameContext = createContext<GameContextType>({ players: [] });
 
 //@ts-ignore
 export const GameProvider = ({ children }) => {
-  const ws = io("ws://localhost:3333");
+  const ws = io("ws://courier-clash-hub.azurewebsites.net/ws");
 
   ws.onAny((event, ...data) => {
     const wsData = parseWsMessage({ eventType: event, data });
@@ -42,7 +42,7 @@ export const GameProvider = ({ children }) => {
         setGameTime(wsData.gameTime);
         setPlayers(wsData.players);
         setCurrentPackage(wsData.currentPackage);
-        //setDropZone(wsData.dropZone);
+        setDropZone(wsData.dropZone);
         break;
     }
   });
