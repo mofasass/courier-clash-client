@@ -1,4 +1,4 @@
-import React, { createContext } from "react";
+import React, { createContext, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { BOARD_X } from "../board/config";
 import { parseWsMessage, sendOnWs } from "./websocket-utils";
@@ -24,13 +24,15 @@ type GameContextType = {
   gameTime: number;
   createPlayer: (name: string) => void;
   updateMovement: (direction: "up" | "down" | "left" | "right") => void;
+  currentPackage: { x: number; y: number };
+  dropZone: { x: number; y: number };
 };
 //@ts-ignore
 export const GameContext = createContext<GameContextType>({ players: [] });
 
 //@ts-ignore
 export const GameProvider = ({ children }) => {
-  const ws = io("ws://courier-clash-hub.azurewebsites.net/ws");
+  const ws = io("ws://localhost:3333");
 
   ws.onAny((event, ...data) => {
     const wsData = parseWsMessage({ eventType: event, data });
@@ -39,14 +41,48 @@ export const GameProvider = ({ children }) => {
       case "gameStatus":
         setGameTime(wsData.gameTime);
         setPlayers(wsData.players);
+        setCurrentPackage(wsData.currentPackage);
+        //setDropZone(wsData.dropZone);
         break;
     }
   });
 
-  const [currentPlayer, setCurrentPlayer] = React.useState<Player | undefined>(
+  const [currentPlayer, setCurrentPlayer] = useState<Player | undefined>(
     undefined
   );
-  const [players, setPlayers] = React.useState<Player[]>([]);
+  const [dropZone, setDropZone] = useState<{ x: number; y: number }>({
+    x: 25,
+    y: 25,
+  });
+  const [currentPackage, setCurrentPackage] = useState<{
+    x: number;
+    y: number;
+  }>({ x: 0, y: 0 });
+
+  const [players, setPlayers] = React.useState<Player[]>([
+    {
+      id: "1",
+      color: "red",
+      score: 27,
+      name: "test",
+      gameData: {
+        position: { x: 1, y: 2 },
+        direction: "down",
+        hasPackage: false,
+      },
+    },
+    {
+      id: "2",
+      color: "blue",
+      score: 27,
+      name: "test",
+      gameData: {
+        position: { x: 55, y: 55 },
+        direction: "left",
+        hasPackage: true,
+      },
+    },
+  ]);
   const [gameTime, setGameTime] = React.useState<number>(0);
 
   const createPlayer = (name: string) => {
@@ -73,7 +109,14 @@ export const GameProvider = ({ children }) => {
 
   return (
     <GameContext.Provider
-      value={{ players, createPlayer, gameTime, updateMovement }}
+      value={{
+        players,
+        createPlayer,
+        gameTime,
+        updateMovement,
+        currentPackage,
+        dropZone,
+      }}
     >
       {children}
     </GameContext.Provider>

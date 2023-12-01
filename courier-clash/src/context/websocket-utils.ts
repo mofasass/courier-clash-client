@@ -9,6 +9,7 @@ type GameStatus = {
   eventType: "gameStatus";
   gameTime: number;
   players: Player[];
+  currentPackage: { x: number; y: number };
 };
 
 type wsPayloads = playerJoined | GameStatus;

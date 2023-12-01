@@ -1,15 +1,24 @@
-import React from 'react';
-import styled from 'styled-components';
+import React from "react";
+import styled from "styled-components";
 
-const PlayerDiv = styled.h1`
-  height: 100px;
-  width: 100px;
-  background: #aaa;
-  border: 1px solid #000;
+const PlayerDiv = styled.div<{ color: string; x: number; y: number }>`
+  height: 10px;
+  width: 10px;
+  position: relative;
+  background: ${({ color }) => color};
+  left: ${({ x }) => x}px;
+  top: ${({ y }) => 1000 - y}px;
+  transform: translate(-50%, -50%);
 `;
 
-const Player = () => {
-  return <PlayerDiv />
+type PlayerProps = {
+  color: string;
+  x: number;
+  y: number;
+};
+
+const Player = ({ color, x, y }: PlayerProps) => {
+  return <PlayerDiv color={color} x={x * 10} y={y * 10} />;
 };
 
 export default Player;
