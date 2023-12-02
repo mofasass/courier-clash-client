@@ -34,33 +34,9 @@ const DropZoneDiv = styled.div<{ x: number; y: number }>`
 `;
 
 const Board = () => {
-  const {
-    gameTime,
-    updateMovement,
-    createPlayer,
-    players,
-    currentPackage,
-    dropZone,
-  } = useContext(GameContext);
+  const { gameTime, createPlayer, players, currentPackage, dropZone } =
+    useContext(GameContext);
   const [username, setUsername] = useState("");
-
-  const setUpListener = useCallback((e: any) => {
-    if (
-      ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].indexOf(e.code) > -1
-    ) {
-      e.preventDefault();
-      updateMovement(e.code.replace("Arrow", "").toLowerCase());
-    }
-  }, []);
-
-  // Set up arrow key listener
-  useEffect(() => {
-    window.addEventListener("keydown", setUpListener);
-
-    return () => {
-      window.removeEventListener("keydown", setUpListener);
-    };
-  }, []);
 
   return (
     <>
@@ -68,11 +44,12 @@ const Board = () => {
       <BoardDiv>
         {players.map((p) => (
           <Player
+            key={p.name + p.color + p.id}
             color={p.color}
             x={p.gameData.position.x}
             y={p.gameData.position.y}
-            direction={p.gameData.direction}
-            hasPackage={p.gameData.hasPackage}
+            direction={p.gameData.Direction}
+            hasPackage={p.gameData.HasPackage}
             name={p.name}
           />
         ))}
@@ -81,12 +58,13 @@ const Board = () => {
       </BoardDiv>
       <input onChange={(e) => setUsername(e.target.value)} />
       <button
-        onClick={(e) => {
+        onClick={async (e) => {
           e.preventDefault();
-          createPlayer(username);
+          console.log("setting playerId to ", username);
+          await createPlayer(username);
         }}
       >
-        Button
+        JOIN
       </button>
     </>
   );
